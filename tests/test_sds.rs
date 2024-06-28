@@ -23,6 +23,9 @@ mod tests {
     fn test_sds_len() {
         let sds = SDS::sdsnew("Hello");
         assert_eq!(sds.sdslen(), 5);
+        assert_eq!(sds.sdsavail(), 5);
+        assert_eq!(sds.sdsbuf().len(), 10);
+        assert_eq!(sds.to_string(), "Hello\0\0\0\0\0");
     }
     
     #[test]

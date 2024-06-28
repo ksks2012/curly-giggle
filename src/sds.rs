@@ -25,11 +25,15 @@ impl SDS {
 
     // Create a new SDS with the given string
     pub fn sdsnew(s: &str) -> Self {
-        SDS {
+        let buf_len = s.len() * 2;
+        let mut sds = SDS {
             len: s.len() as u64,
-            free: 0,
-            buf: s.as_bytes().to_vec(),
-        }
+            free: buf_len as u64 - s.len() as u64,
+            buf: vec![0; buf_len],
+        };
+        let source_slice = s.as_bytes();
+        sds.buf[..source_slice.len()].copy_from_slice(source_slice);
+        sds
     }
 
     pub fn sdslen(&self) -> u64 {
