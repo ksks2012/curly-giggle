@@ -78,7 +78,9 @@ mod tests {
         let mut sds1 = SDS::sdsnew("Hello");
         let sds2 = SDS::sdsnew(", World!");
         sds1.sdscatsds(&sds2);
-        assert_eq!(sds1.to_string(), "Hello, World!");
+        assert_eq!(sds1.sdslen(), 13);
+        assert_eq!(sds1.sdsavail(), 13);
+        assert_eq!(sds1.to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]

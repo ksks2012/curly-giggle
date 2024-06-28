@@ -10,6 +10,7 @@ pub struct SDS {
     buf: Vec<u8>,
 }
 
+#[allow(dead_code)]
 impl SDS {
     pub fn new() -> Self {
         SDS {
@@ -92,8 +93,10 @@ impl SDS {
     }
 
     pub fn sdscatsds(&mut self, other: &SDS) {
-        self.buf.extend(other.buf.clone());
-        self.len += other.len;
+        let other_len = other.sdslen();
+        let other_str = other.to_string();
+        let (prefix, _suffix) = other_str.split_at(other_len as usize);
+        self.sdscat(prefix);
     }
 
     pub fn sdscpy(&mut self, other: &str) {
