@@ -19,11 +19,11 @@ cargo test --test test_sds
 - [x] sdsfree
 - [x] sdslen
 - [x] sdsavail 
-- [ ] sdsdup 
+- [x] sdsdup 
 - [x] sdsclear  
 - [x] sdscat
 - [x] sdscatsds 
-- [ ] sdscpy
+- [x] sdscpy
 - [ ] sdsgrowzero
 - [ ] sdsrange
 - [ ] sdstrim

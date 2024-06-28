@@ -79,20 +79,20 @@ impl SDS {
     // Add string to end of SDS
     pub fn sdscat(&mut self, other: &str) {
         // Check available space
-        let s_len = other.len() as u64;
-        if self.free < s_len {
-            let new_buf_len = (self.len + s_len) * 2;
+        let str_len = other.len() as u64;
+        if self.free < str_len {
+            let new_buf_len = (self.len + str_len) * 2;
             let mut new_buf = vec![0; new_buf_len as usize];
             new_buf[..self.len as usize].copy_from_slice(&self.buf[..self.len as usize]);
-            new_buf[self.len as usize..(self.len + s_len) as usize].copy_from_slice(other.as_bytes());
+            new_buf[self.len as usize..(self.len + str_len) as usize].copy_from_slice(other.as_bytes());
             self.buf = new_buf;
-            self.free = new_buf_len - self.len - s_len;
+            self.free = new_buf_len - self.len - str_len;
         } else {
             let source_slice = other.as_bytes();
             self.buf[..source_slice.len()].copy_from_slice(source_slice);
-            self.free -= s_len;
+            self.free -= str_len;
         }
-        self.len += s_len;
+        self.len += str_len;
     }
 
     pub fn sdscatsds(&mut self, other: &SDS) {
@@ -102,14 +102,22 @@ impl SDS {
         self.sdscat(prefix);
     }
 
+    // Copy input string to buf
     pub fn sdscpy(&mut self, other: &str) {
         let str_len = other.len() as u64;
-        // TODO: if free is less than str_len, then resize the buffer
-        if self.free < str_len {
-            self.buf.reserve(str_len as usize - self.free as usize);
-            self.free = str_len;
+        // If len free is less than str_len, then resize the buffer
+        if self.len + self.free < str_len {
+            let new_buf_len = str_len * 2;
+            let mut new_buf = vec![0; new_buf_len as usize];
+            new_buf[..str_len as usize].copy_from_slice(other.as_bytes());
+            self.buf = new_buf;
+            self.free = new_buf_len - str_len;
+        } else {
+            let source_slice = other.as_bytes();
+            self.buf[..source_slice.len()].copy_from_slice(source_slice);
+            self.free = self.free + self.len - str_len;
         }
-        self.buf = other.as_bytes().to_vec();
+        self.buf[other.len()] = 0;
         self.len = str_len;
     }
 

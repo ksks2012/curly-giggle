@@ -87,7 +87,19 @@ mod tests {
     fn test_sds_cpy() {
         let mut sds = SDS::sdsnew("Hello");
         sds.sdscpy("World!");
-        assert_eq!(sds.to_string(), "World!");
+        assert_eq!(sds.sdslen(), 6);
+        assert_eq!(sds.sdsavail(), 4);
+        assert_eq!(sds.to_string(), "World!\0\0\0\0");
+
+        sds.sdscpy("Hello");
+        assert_eq!(sds.sdslen(), 5);
+        assert_eq!(sds.sdsavail(), 5);
+        assert_eq!(sds.to_string(), "Hello\0\0\0\0\0");
+
+        sds.sdscpy("Hello, World!");
+        assert_eq!(sds.sdslen(), 13);
+        assert_eq!(sds.sdsavail(), 13);
+        assert_eq!(sds.to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]
