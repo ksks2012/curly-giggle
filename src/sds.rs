@@ -50,6 +50,10 @@ impl SDS {
         self.free
     }
 
+    pub fn sdsbuf(&self) -> Vec<u8> {
+        self.buf.clone()
+    }
+
     // Create a copy of the current SDS
     pub fn sdsdup(&self) -> Self {
         SDS {
@@ -92,12 +96,41 @@ impl SDS {
         self.free += len;
     }
     
-    // TODO: Restore range of the SDS, clear others
-    pub fn sdsrange(&self, start: u64, end: u64) {
+    // Restore range of the SDS, clear others
+    /*
+     * TODO: start, end can be negative, -1 means the last character of the
+     * string, -2 the penultimate character, and so forth.
+     */
+    pub fn sdsrange(&mut self, mut start: usize, mut end: usize) -> i64 {
+        // TODO: Check len with SSIZE_MAX
+        if self.len == 0 {
+            return 0
+        }
+        let mut new_len = end - start + 1;
+        if new_len != 0 {
+            if start >= self.len as usize {
+                new_len = 0
+            } else if end >= self.len as usize {
+                end = self.len as usize - 1;
+                new_len = end - start + 1
+            }
+        } else {
+            start = 0
+        }
+        if start != 0 && new_len != 0 {
+            // memmove
+            self.buf.copy_within(start..(end+1), 0)
+        }
+        self.buf[new_len as usize] = 0;
+        // Update len & free
+        self.free = self.free + self.len - new_len as u64;
+        self.len = new_len as u64;
+
+        return 0
     }
 
     // TODO: Remove all of characters in cset from buf of SDS
-    pub fn sdstrim(&mut self, cset: &str) {
+    pub fn sdstrim(&mut self, _cset: &str) {
     }
 
     pub fn sdscmp(&self, other: &SDS) -> Ordering {
