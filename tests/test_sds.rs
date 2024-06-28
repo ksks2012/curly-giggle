@@ -68,7 +68,9 @@ mod tests {
     fn test_sds_cat() {
         let mut sds = SDS::sdsnew("Hello");
         sds.sdscat(", World!");
-        assert_eq!(sds.to_string(), "Hello, World!");
+        assert_eq!(sds.sdslen(), 13);
+        assert_eq!(sds.sdsavail(), 13);
+        assert_eq!(sds.to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]

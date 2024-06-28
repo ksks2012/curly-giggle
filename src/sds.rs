@@ -72,9 +72,23 @@ impl SDS {
         self.buf.clear();
     }
 
+    // Add string to end of SDS
     pub fn sdscat(&mut self, other: &str) {
-        self.buf.extend(other.as_bytes());
-        self.len += other.len() as u64;
+        // Check available space
+        let s_len = other.len() as u64;
+        if self.free < s_len {
+            let new_buf_len = (self.len + s_len) * 2;
+            let mut new_buf = vec![0; new_buf_len as usize];
+            new_buf[..self.len as usize].copy_from_slice(&self.buf[..self.len as usize]);
+            new_buf[self.len as usize..(self.len + s_len) as usize].copy_from_slice(other.as_bytes());
+            self.buf = new_buf;
+            self.free = new_buf_len - self.len - s_len;
+        } else {
+            let source_slice = other.as_bytes();
+            self.buf[..source_slice.len()].copy_from_slice(source_slice);
+            self.free -= s_len;
+        }
+        self.len += s_len;
     }
 
     pub fn sdscatsds(&mut self, other: &SDS) {
