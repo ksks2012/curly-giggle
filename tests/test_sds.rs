@@ -61,7 +61,7 @@ mod tests {
         sds.sdsclear();
         assert_eq!(sds.sdslen(), 0);
         assert_eq!(sds.sdsavail(), 5);
-        assert_eq!(sds.sdsbuf(), Vec::<u8>::new());
+        assert_eq!(sds.to_string(), "\0ello\0\0\0\0\0");
     }
     
     #[test]

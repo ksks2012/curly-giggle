@@ -16,11 +16,11 @@ cargo test --test test_sds
 
 - [x] sdsnew
 - [x] sdsempty
-- [ ] sdsfree
+- [x] sdsfree
 - [x] sdslen
 - [x] sdsavail 
 - [ ] sdsdup 
-- [ ] sdsclear  
+- [x] sdsclear  
 - [x] sdscat
 - [x] sdscatsds 
 - [ ] sdscpy

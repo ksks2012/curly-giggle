@@ -45,6 +45,7 @@ impl SDS {
         self.len == 0
     }
 
+    // Free space
     pub fn sdsfree(&mut self) {
         self.len = 0;
         self.free = 0;
@@ -68,9 +69,11 @@ impl SDS {
         }
     }
 
+    // Clear buf (inertia)
     pub fn sdsclear(&mut self) {
+        self.len = 0;
         self.free += self.len;
-        self.buf.clear();
+        self.buf[0] = 0;
     }
 
     // Add string to end of SDS
