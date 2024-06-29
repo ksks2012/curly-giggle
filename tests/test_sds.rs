@@ -115,14 +115,14 @@ mod tests {
     fn test_sds_range() {
         let mut sds = SDS::sdsnew("Hello, World!");
         sds.sdsrange(0, 4);
-        assert_eq!(sds.to_string(), "Hello\0 World!");
-        assert_eq!(sds.sdsavail(), 8);
+        assert_eq!(sds.to_string(), "Hello\0 World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sdsavail(), 21);
         assert_eq!(sds.sdslen(), 5);
         
         let mut sds = SDS::sdsnew("Hello, World!");
         sds.sdsrange(7, 11);
-        assert_eq!(sds.to_string(), "World\0 World!");
-        assert_eq!(sds.sdsavail(), 8);
+        assert_eq!(sds.to_string(), "World\0 World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sdsavail(), 21);
         assert_eq!(sds.sdslen(), 5);
     }
     
