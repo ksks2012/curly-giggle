@@ -124,7 +124,7 @@ impl SDS {
     // Give emtpy chars to the SDS's buffer
     pub fn sdsgrowzero(&mut self, len: u64) {
         self.buf.reserve(len as usize);
-        self.buf.extend(" ".repeat(len as usize).as_bytes());
+        self.buf.extend("\0".repeat(len as usize).as_bytes());
         self.free += len;
     }
     

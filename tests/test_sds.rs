@@ -106,7 +106,9 @@ mod tests {
     fn test_sds_grow_zero() {
         let mut sds = SDS::sdsnew("Hello");
         sds.sdsgrowzero(5);
-        assert_eq!(sds.to_string(), "Hello     ");
+        assert_eq!(sds.sdslen(), 5);
+        assert_eq!(sds.sdsavail(), 10);
+        assert_eq!(sds.to_string(), "Hello\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]
