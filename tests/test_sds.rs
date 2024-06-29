@@ -128,9 +128,13 @@ mod tests {
     
     #[test]
     fn test_sds_trim() {
-        let mut sds = SDS::sdsnew("   Hello, World!   ");
-        sds.sdstrim(" ");
-        assert_eq!(sds.to_string(), "Hello, World!");
+        let mut sds = SDS::sdsnew("AA...AA.a.aa.aHello, World!     :::");
+        assert_eq!(sds.sdsavail(), 35);
+        assert_eq!(sds.sdslen(), 35);
+        sds.sdstrim("Aa. :");
+        assert_eq!(sds.to_string(), "Hello, World!\0Hello, World!     :::\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sdsavail(), 57);
+        assert_eq!(sds.sdslen(), 13);
     }
     
     #[test]

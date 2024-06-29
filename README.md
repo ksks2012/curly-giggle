@@ -26,8 +26,8 @@ cargo test --test test_sds
 - [x] sdscpy
 - [x] sdsgrowzero
 - [x] sdsrange
-- [ ] sdstrim
-- [ ] sdscmp
+- [x] sdstrim
+- [x] sdscmp
 
 # Note 
 

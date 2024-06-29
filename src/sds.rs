@@ -161,8 +161,28 @@ impl SDS {
         return 0
     }
 
-    // TODO: Remove all of characters in cset from buf of SDS
-    pub fn sdstrim(&mut self, _cset: &str) {
+    // Remove all of characters in cset from buf of SDS
+    pub fn sdstrim(&mut self, cset: &str) {
+        let mut new_str = self.to_string();
+        let mut sp = 0 as usize;
+        let mut ep = (self.len - 1) as usize;
+        let end = ep;
+
+        let s_bytes = unsafe { new_str.as_mut_vec() }; // Get a mutable reference to the byte array of the string
+
+        while sp <= end && cset.contains(s_bytes[sp] as char) {
+            sp += 1;
+        }
+        while ep > sp && cset.contains(s_bytes[ep] as char) {
+            ep -= 1;
+        }
+
+        let len = ep - sp + 1;
+        if sp > 0 {
+            s_bytes.copy_within(sp..=ep, 0); // Shift the content to the start
+        }
+        s_bytes.truncate(len); // Truncate the vector to the new length
+        self.sdscpy(&new_str)
     }
 
     pub fn sdscmp(&self, other: &SDS) -> Ordering {
