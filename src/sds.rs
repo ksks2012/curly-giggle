@@ -20,7 +20,7 @@ impl SDS {
         }
     }
 
-    pub fn to_string(&self) -> String {
+    pub fn sds_to_string(&self) -> String {
         self.buf.iter().map(|&c| c as char).collect::<String>()
     }
 
@@ -97,7 +97,7 @@ impl SDS {
 
     pub fn sdscatsds(&mut self, other: &SDS) {
         let other_len = other.sdslen();
-        let other_str = other.to_string();
+        let other_str = other.sds_to_string();
         let (prefix, _suffix) = other_str.split_at(other_len as usize);
         self.sdscat(prefix);
     }
@@ -163,7 +163,7 @@ impl SDS {
 
     // Remove all of characters in cset from buf of SDS
     pub fn sdstrim(&mut self, cset: &str) {
-        let mut new_str = self.to_string();
+        let mut new_str = self.sds_to_string();
         let mut sp = 0 as usize;
         let mut ep = (self.len - 1) as usize;
         let end = ep;

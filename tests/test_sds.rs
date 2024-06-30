@@ -16,7 +16,7 @@ mod tests {
     #[test]
     fn test_sds_to_string() {
         let sds = SDS::sdsnew("Hello, World!");
-        assert_eq!(sds.to_string(), "Hello, World!");
+        assert_eq!(sds.sds_to_string(), "Hello, World!");
     }
     
     #[test]
@@ -25,7 +25,7 @@ mod tests {
         assert_eq!(sds.sdslen(), 5);
         assert_eq!(sds.sdsavail(), 5);
         assert_eq!(sds.sdsbuf().len(), 10);
-        assert_eq!(sds.to_string(), "Hello\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "Hello\0\0\0\0\0");
     }
     
     #[test]
@@ -61,7 +61,7 @@ mod tests {
         sds.sdsclear();
         assert_eq!(sds.sdslen(), 0);
         assert_eq!(sds.sdsavail(), 5);
-        assert_eq!(sds.to_string(), "\0ello\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "\0ello\0\0\0\0\0");
     }
     
     #[test]
@@ -70,7 +70,7 @@ mod tests {
         sds.sdscat(", World!");
         assert_eq!(sds.sdslen(), 13);
         assert_eq!(sds.sdsavail(), 13);
-        assert_eq!(sds.to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]
@@ -80,7 +80,7 @@ mod tests {
         sds1.sdscatsds(&sds2);
         assert_eq!(sds1.sdslen(), 13);
         assert_eq!(sds1.sdsavail(), 13);
-        assert_eq!(sds1.to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds1.sds_to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]
@@ -89,17 +89,17 @@ mod tests {
         sds.sdscpy("World!");
         assert_eq!(sds.sdslen(), 6);
         assert_eq!(sds.sdsavail(), 4);
-        assert_eq!(sds.to_string(), "World!\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "World!\0\0\0\0");
 
         sds.sdscpy("Hello");
         assert_eq!(sds.sdslen(), 5);
         assert_eq!(sds.sdsavail(), 5);
-        assert_eq!(sds.to_string(), "Hello\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "Hello\0\0\0\0\0");
 
         sds.sdscpy("Hello, World!");
         assert_eq!(sds.sdslen(), 13);
         assert_eq!(sds.sdsavail(), 13);
-        assert_eq!(sds.to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]
@@ -108,20 +108,20 @@ mod tests {
         sds.sdsgrowzero(5);
         assert_eq!(sds.sdslen(), 5);
         assert_eq!(sds.sdsavail(), 10);
-        assert_eq!(sds.to_string(), "Hello\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "Hello\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]
     fn test_sds_range() {
         let mut sds = SDS::sdsnew("Hello, World!");
         sds.sdsrange(0, 4);
-        assert_eq!(sds.to_string(), "Hello\0 World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "Hello\0 World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
         assert_eq!(sds.sdsavail(), 21);
         assert_eq!(sds.sdslen(), 5);
         
         let mut sds = SDS::sdsnew("Hello, World!");
         sds.sdsrange(7, 11);
-        assert_eq!(sds.to_string(), "World\0 World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "World\0 World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
         assert_eq!(sds.sdsavail(), 21);
         assert_eq!(sds.sdslen(), 5);
     }
@@ -132,7 +132,7 @@ mod tests {
         assert_eq!(sds.sdsavail(), 35);
         assert_eq!(sds.sdslen(), 35);
         sds.sdstrim("Aa. :");
-        assert_eq!(sds.to_string(), "Hello, World!\0Hello, World!     :::\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
+        assert_eq!(sds.sds_to_string(), "Hello, World!\0Hello, World!     :::\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
         assert_eq!(sds.sdsavail(), 57);
         assert_eq!(sds.sdslen(), 13);
     }
