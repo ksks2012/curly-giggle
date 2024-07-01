@@ -29,18 +29,21 @@ impl SDS {
     }
 
     // Create a new SDS with the given string
+    #[inline]
     pub fn sdsnew(s: &str) -> Self {
-        let buf_len = s.len() * 2;
+        let str_len = s.len();
+        let buf_len = str_len * 2;
         let mut sds = SDS {
-            len: s.len() as u64,
-            free: buf_len as u64 - s.len() as u64,
-            buf: vec![0; buf_len],
+            len: str_len as u64,
+            free: (buf_len - str_len) as u64,
+            buf: Vec::with_capacity(buf_len),
         };
-        let source_slice = s.as_bytes();
-        sds.buf[..source_slice.len()].copy_from_slice(source_slice);
+        sds.buf.extend_from_slice(s.as_bytes());
+        sds.buf.resize(buf_len, 0);
         sds
     }
 
+    #[inline]
     pub fn sdslen(&self) -> u64 {
         self.len
     }
@@ -74,6 +77,7 @@ impl SDS {
     }
 
     // Clear buf (inertia)
+    #[inline]
     pub fn sdsclear(&mut self) {
         self.len = 0;
         self.free += self.len;
