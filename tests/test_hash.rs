@@ -1,4 +1,4 @@
-use curly_giggle::hash::Dict;
+use curly_giggle::collection::hash::Dict;
 
 #[cfg(test)]
 mod tests {

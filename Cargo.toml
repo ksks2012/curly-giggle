@@ -9,3 +9,14 @@ criterion = "0.4"
 [[bench]]
 name = "bm_sds"
 harness = false
+
+[features]
+
+default = []
+
+full = [
+    "collection",
+]
+
+collection = [
+]
