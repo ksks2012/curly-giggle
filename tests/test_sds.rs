@@ -22,9 +22,15 @@ mod tests {
     }
     
     #[test]
+    fn test_to_string() {
+        let sds = SDS::sdsnew("Hello, World!");
+        assert_eq!(sds.to_string(), "Hello, World!");
+    }
+
+    #[test]
     fn test_sds_to_string() {
         let sds = SDS::sdsnew("Hello, World!");
-        assert_eq!(sds.sds_to_string(), "Hello, World!");
+        assert_eq!(sds.sds_to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]

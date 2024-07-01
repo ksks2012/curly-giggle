@@ -20,6 +20,10 @@ impl SDS {
         }
     }
 
+    pub fn to_string(&self) -> String {
+        self.buf[..self.len as usize].iter().map(|&c| c as char).collect::<String>()
+    }
+
     pub fn sds_to_string(&self) -> String {
         self.buf.iter().map(|&c| c as char).collect::<String>()
     }
