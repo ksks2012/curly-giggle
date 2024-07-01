@@ -6,11 +6,19 @@ mod tests {
     use super::*;
     
     #[test]
-    fn test_sds_new() {
+    fn test_new() {
         let sds = SDS::new();
         assert_eq!(sds.sdslen(), 0);
         assert_eq!(sds.sdsavail(), 0);
         assert_eq!(sds.sdsbuf(), Vec::<u8>::new());
+    }
+
+    #[test]
+    fn test_sds_new() {
+        let sds = SDS::sdsnew("Hello, World!");
+        assert_eq!(sds.sdslen(), 13);
+        assert_eq!(sds.sdsavail(), 13);
+        assert_eq!(sds.sds_to_string(), "Hello, World!\0\0\0\0\0\0\0\0\0\0\0\0\0");
     }
     
     #[test]
