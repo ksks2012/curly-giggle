@@ -10,6 +10,12 @@
 cargo test --test test_sds
 ```
 
+## Benchmark
+
+```
+cargo bench --bench bm_sds
+```
+
 # List
 
 ## SDS
