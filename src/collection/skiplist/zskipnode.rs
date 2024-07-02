@@ -26,4 +26,8 @@ impl<T> ZSkipNode<T> {
             next: iter::repeat(None).take(level + 1).collect(),
         }
     }
+
+    pub fn into_val(self) -> Option<T> {
+        self.val
+    }
 }

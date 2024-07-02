@@ -42,5 +42,17 @@ mod tests {
         assert_eq!(node.val, Some(item));
     }
 
+    #[test]
+    fn test_into_val() {
+        let item = "Hello, world!";
+        let node = ZSkipNode {
+            val: Some(item.to_string()),
+            level: 2,
+            next: vec![None, None, None],
+        };
+        let val: Option<String> = node.into_val();
+        assert_eq!(val, Some(item.to_string()));
+    }
+
     // Add more tests here...
 }
