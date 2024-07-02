@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 criterion = "0.4"
+rand = { version = "0.8", features = ["small_rng"] }
 
 [[bench]]
 name = "bm_sds"
