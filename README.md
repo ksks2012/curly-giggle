@@ -59,4 +59,5 @@ cargo bench --bench bm_sds
 # Ref
 
 - https://github.com/redis/redis
+- https://rust-unofficial.github.io/too-many-lists/index.html#learn-rust-with-entirely-too-many-linked-lists
 - The Design And Implementation Of Redis
