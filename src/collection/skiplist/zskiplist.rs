@@ -4,7 +4,7 @@ use std::mem;
 use std::ptr::NonNull;
 
 use super::zskipnode::{Link, ZSkipNode};
-use super::level_generator::generate_random_level;
+use super::level_generator::{DefaultLevelGenerator, LevelGenerator};
 
 type Comparator<T> = Box<dyn Fn(&T, &T) -> Ordering>;
 
@@ -15,21 +15,22 @@ pub struct ZSkipList<T> {
     len: usize,
     cmp: Comparator<T>,
     _boo: PhantomData<T>,
-    // TODO: LevelGenerator
-    // level_generator: usize,
+    level_generator: Box<dyn LevelGenerator>, 
 }
 
 #[allow(dead_code, unused_variables)]
 impl<T: Ord> ZSkipList<T> {
     pub fn zsl_create() -> Self {
         // TODO: Implementation of zsl_create here
-        // TODO: LevelGenerator
+        // LevelGenerator
+        let g = DefaultLevelGenerator::default();
         ZSkipList {
-            header: NonNull::new(Box::into_raw(Box::new(ZSkipNode::head(generate_random_level())))).unwrap(),
+            header: NonNull::new(Box::into_raw(Box::new(ZSkipNode::head(g.level_bound())))).unwrap(),
             level: 0,
             len: 0,
             cmp: Box::new(|x, y| x.cmp(y)),
             _boo: PhantomData,
+            level_generator: Box::new(g),
         }
     }
 }
