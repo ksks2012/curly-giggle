@@ -5,6 +5,12 @@ mod tests {
     use super::*;
 
     #[test]
+    fn test_zsl_create() {
+        let list: ZSkipList<i32> = ZSkipList::zsl_create();
+        assert_eq!(list.get_len(), 0);
+    }
+
+    #[test]
     fn test_insert_and_contains() {
         let mut list = ZSkipList::zsl_create();
 
@@ -33,16 +39,17 @@ mod tests {
 
     #[test]
     fn test_iter() {
-        let mut list = ZSkipList::zsl_create();
-        list.zsl_insert(1);
-        list.zsl_insert(2);
-        list.zsl_insert(3);
+        let mut list: ZSkipList<i32> = ZSkipList::zsl_create();
+        for i in 0..100 {
+            list.zsl_insert(i)
+        }
 
-        let mut iter = list.iter();
-        assert_eq!(iter.next(), Some(&1));
-        assert_eq!(iter.next(), Some(&2));
-        assert_eq!(iter.next(), Some(&3));
-        assert_eq!(iter.next(), None);
+        let mut x = 0;
+        list.iter().for_each(|i| {
+            assert_eq!(i, &x);
+            x += 1;
+        });
+
     }
 
     #[test]
