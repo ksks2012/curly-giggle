@@ -60,7 +60,7 @@ impl<T> ZSkipList<T> {
         unsafe {
             let first_node = self.header.as_ref().next[0].as_ref();
             match first_node {
-                Some(node) => self.remove(node.as_ref().val.as_ref().unwrap()),
+                Some(node) => self.zsl_delete(node.as_ref().val.as_ref().unwrap()),
                 None => None,
             }
         }
@@ -90,8 +90,99 @@ impl<T> ZSkipList<T> {
         false
     }
 
-    pub fn remove(&mut self, val: &T) -> Option<T> {
-        if !self.contains(val) {
+    pub fn get_len(&self) -> usize {
+        return self.len;
+    }
+
+}
+
+#[allow(dead_code, unused_variables)]
+impl<T> ZSkipList<T> {
+
+    pub fn zsl_free(&mut self) {
+        // TODO: Implementation of zsl_free here
+        // Free any allocated memory and clean up resources
+    }
+
+    /// Insert the element with the given score into the skip list.
+    ///
+    /// If the element already exists in the skip list, it will not be inserted again.
+    ///
+    /// # Arguments
+    ///
+    /// * `element` - The element to be inserted into the skip list.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use curly_giggle::collection::skiplist::zskiplist::ZSkipList;
+    ///
+    /// let mut skip_list = ZSkipList::zsl_create();
+    /// skip_list.zsl_insert(42);
+    /// ```
+    pub fn zsl_insert(&mut self, element: T) {
+        if self.contains(&element) {
+            return;
+        }
+
+        let level = self.level_generator.random();
+        let new_node = Box::new(ZSkipNode::new(element, level));
+        let mut new_node_ptr = NonNull::new(Box::into_raw(new_node)).unwrap();
+
+        unsafe {
+            let mut cur = self.header.as_mut();
+            let mut update: Vec<*mut ZSkipNode<T>> = vec![std::ptr::null_mut(); level + 1];
+
+            for i in (0..=cur.level).rev() {
+                while let Some(mut next_node) = cur.next[i] {
+                    let next_node = next_node.as_mut();
+                    if (self.cmp)(
+                        next_node.val.as_ref().unwrap(),
+                        new_node_ptr.as_ref().val.as_ref().unwrap(),
+                    ) == Ordering::Less
+                    {
+                        cur = next_node;
+                    } else {
+                        break;
+                    }
+                }
+
+                if i <= level {
+                    update[i] = cur;
+                }
+            }
+
+            for i in 0..=level {
+                new_node_ptr.as_mut().next[i] = update[i].as_mut().unwrap().next[i];
+                update[i].as_mut().unwrap().next[i] = Some(new_node_ptr);
+            }
+        }
+
+        self.len += 1;
+    }
+
+
+    /// Delete the element with the given score from the skip list.
+    ///
+    /// If the element is found and deleted, it will be returned as `Some(element)`.
+    /// If the element is not found, `None` will be returned.
+    ///
+    /// # Arguments
+    ///
+    /// * `element` - The element to be deleted from the skip list.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use curly_giggle::collection::skiplist::zskiplist::ZSkipList;
+    ///
+    /// let mut skip_list = ZSkipList::zsl_create();
+    /// skip_list.zsl_insert(42);
+    /// assert_eq!(skip_list.zsl_delete(&42), Some(42));
+    /// assert_eq!(skip_list.zsl_delete(&42), None);
+    /// ```
+    pub fn zsl_delete(&mut self, element: &T) -> Option<T>{
+        if !self.contains(&element) {
             return None;
         }
 
@@ -103,7 +194,7 @@ impl<T> ZSkipList<T> {
             for i in (0..=max_level).rev() {
                 while let Some(mut next_node) = cur.next[i] {
                     let next_node = next_node.as_mut();
-                    if (self.cmp)(next_node.val.as_ref().unwrap(), val) == Ordering::Less {
+                    if (self.cmp)(next_node.val.as_ref().unwrap(), &element) == Ordering::Less {
                         cur = next_node;
                     } else {
                         break;
@@ -114,7 +205,7 @@ impl<T> ZSkipList<T> {
 
             let mut ret_val_ref = None;
             if cur.next[0].is_some()
-                && (self.cmp)(cur.next[0].unwrap().as_ref().val.as_ref().unwrap(), val)
+                && (self.cmp)(cur.next[0].unwrap().as_ref().val.as_ref().unwrap(), &element)
                     == Ordering::Equal
             {
                 ret_val_ref = cur.next[0];
@@ -128,7 +219,7 @@ impl<T> ZSkipList<T> {
                                 .val
                                 .as_ref()
                                 .unwrap(),
-                            val,
+                            &element,
                         ) == Ordering::Equal
                     {
                         (*update[i].unwrap()).next[i] =
@@ -145,25 +236,6 @@ impl<T> ZSkipList<T> {
         self.len -= 1;
 
         res_val
-    }
-}
-
-#[allow(dead_code, unused_variables)]
-impl<T> ZSkipList<T> {
-
-    pub fn zsl_free(&mut self) {
-        // TODO: Implementation of zsl_free here
-        // Free any allocated memory and clean up resources
-    }
-
-    pub fn zsl_insert(&mut self, score: f64, element: T) {
-        // TODO: Implementation of zsl_insert here
-        // Insert the element with the given score into the skip list
-    }
-
-    pub fn zsl_delete(&mut self, score: f64, element: T) {
-        // TODO: Implementation of zsl_delete here
-        // Delete the element with the given score from the skip list
     }
 
     pub fn zsl_get_rank(&self, score: f64, element: T) -> Option<usize> {
