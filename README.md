@@ -37,17 +37,17 @@ cargo bench --bench bm_sds
 
 ## ZSkipList
 
-- [] zsl_create
-- [] zsl_free
-- [] zsl_insert
-- [] zsl_delete
-- [] zsl_get_rank
-- [] zsl_get_element_by_rank
-- [] zsl_is_in_range
-- [] zsl_first_in_range
-- [] zsl_last_in_range
-- [] zsl_delete_range_by_score
-- [] zsl_delete_range_by_rank
+- [x] zsl_create
+- [ ] zsl_free
+- [x] zsl_insert
+- [x] zsl_delete
+- [ ] zsl_get_rank
+- [ ] zsl_get_element_by_rank
+- [ ] zsl_is_in_range
+- [ ] zsl_first_in_range
+- [ ] zsl_last_in_range
+- [ ] zsl_delete_range_by_score
+- [ ] zsl_delete_range_by_rank
 
 
 
