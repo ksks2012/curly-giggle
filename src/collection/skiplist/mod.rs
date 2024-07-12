@@ -4,4 +4,5 @@ pub mod level_generator;
 
 
 // layer level
-const MAX_LEVEL: u32 = 32;
+const ZSKIPLIST_MAXLEVEL: usize = 32;
+const ZSKIPLIST_P: f64 = 0.25;

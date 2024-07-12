@@ -1,7 +1,7 @@
 use rand::rngs::SmallRng;
 use rand::{thread_rng, Rng};
 use rand::SeedableRng;
-use crate::collection::skiplist::MAX_LEVEL;
+use crate::collection::skiplist::ZSKIPLIST_MAXLEVEL;
 
 pub trait LevelGenerator {
     fn level_bound(&self) -> usize;
@@ -81,7 +81,7 @@ pub fn generate_random_level() -> usize {
     // The random number generator used for generating levels in the skip list.
     let mut rng = thread_rng();
 
-    for _i in 1..MAX_LEVEL {
+    for _i in 1..ZSKIPLIST_MAXLEVEL {
         if rng.gen::<u32>() % 2 == 1 {
             level += 1;
         }
