@@ -15,7 +15,7 @@ type Comparator<T> = Box<dyn Fn(&T, &T) -> Ordering>;
 pub struct ZSkipList<T> {
     header: NonNull<ZSkipNode<T>>,
     tail: NonNull<ZSkipNode<T>>,
-    level: usize,
+    cur_level: usize,
     len: usize,
     cmp: Comparator<T>,
     _boo: PhantomData<T>,
@@ -32,7 +32,7 @@ impl<T: Ord> ZSkipList<T> {
         ZSkipList {
             header: new_node,
             tail: new_node,
-            level: 0,
+            cur_level: 0,
             len: 0,
             cmp: Box::new(|x, y| x.cmp(y)),
             _boo: PhantomData,
@@ -76,20 +76,20 @@ impl<T> ZSkipList<T> {
         unsafe {
             let mut cur = self.header.as_ref();
 
-            for i in (0..=self.level).rev() {
-                while let Some(next_node) = cur.next[i] {
-                    let next_node = next_node.as_ref();
+            for i in (0..self.cur_level).rev() {
+                while let Some(next_node) = cur.level[i].forward {
+                    let next_node = next_node.as_ref().unwrap().as_ref();
                     if (self.cmp)(next_node.val.as_ref().unwrap(), v) == Ordering::Less {
                         cur = next_node;
                     } else {
                         break;
                     }
                 }
-                if cur.next[i].is_some()
-                    && (self.cmp)(cur.next[i].unwrap().as_ref().val.as_ref().unwrap(), v)
-                        == Ordering::Equal
-                {
-                    return true;
+                if let Some(next_node) = cur.level[i].forward {
+                    let next_node = next_node.as_ref().unwrap().as_ref();
+                    if (self.cmp)(next_node.val.as_ref().unwrap(), v) == Ordering::Equal {
+                        return true;
+                    }
                 }
             }
         }
@@ -114,7 +114,8 @@ impl<T> ZSkipList<T> {
     /// If the element already exists in the skip list, it will not be inserted again.
     ///
     /// # Arguments
-    ///
+    /// 
+    /// * `score` - The score associated with the element. The score is used to determine the position of the element in the skip list.
     /// * `element` - The element to be inserted into the skip list.
     ///
     /// # Examples
@@ -123,56 +124,15 @@ impl<T> ZSkipList<T> {
     /// use curly_giggle::collection::skiplist::zskiplist::ZSkipList;
     ///
     /// let mut skip_list = ZSkipList::zsl_create();
-    /// skip_list.zsl_insert(42);
+    /// skip_list.zsl_insert(1.0, 42);
     /// ```
-    pub fn zsl_insert(&mut self, element: T) {
-        if self.contains(&element) {
-            return;
-        }
-
-        let level = self.level_generator.random();
-        let new_node = Box::new(ZSkipNode::new(element, level));
-        let mut new_node_ptr = NonNull::new(Box::into_raw(new_node)).unwrap();
-
-        unsafe {
-            let mut cur = self.header.as_mut();
-            let mut update: Vec<*mut ZSkipNode<T>> = vec![std::ptr::null_mut(); level + 1];
-
-            for i in (0..=self.level).rev() {
-                while let Some(mut next_node) = cur.next[i] {
-                    let next_node = next_node.as_mut();
-                    if (self.cmp)(
-                        next_node.val.as_ref().unwrap(),
-                        new_node_ptr.as_ref().val.as_ref().unwrap(),
-                    ) == Ordering::Less
-                    {
-                        cur = next_node;
-                    } else {
-                        break;
-                    }
-                }
-
-                if i <= level {
-                    update[i] = cur;
-                }
-            }
-
-            for i in 0..=level {
-                new_node_ptr.as_mut().next[i] = update[i].as_mut().unwrap().next[i];
-                update[i].as_mut().unwrap().next[i] = Some(new_node_ptr);
-            }
-        }
-
-        self.len += 1;
-    }
-
-    pub fn zsl_insert_with_score(&mut self, score: f64, element: T) -> NonNull<ZSkipNode<T>> {
+    pub fn zsl_insert(&mut self, score: f64, element: T) -> NonNull<ZSkipNode<T>> {
         let mut update = vec![self.header; 32];
         let mut rank = vec![0; 32];
 
         let mut x = unsafe { self.header.as_ref() };
-        for i in (0..self.level).rev() {
-            rank[i] = if i == self.level - 1 { 0 } else { rank[i + 1] };
+        for i in (0..self.cur_level).rev() {
+            rank[i] = if i == self.cur_level - 1 { 0 } else { rank[i + 1] };
             while let Some(forward) = x.level[i].forward {
                 let forward_node: &ZSkipNode<T> = unsafe {forward.as_ref().unwrap().as_ref()};
                 if forward_node.score < score || (forward_node.score == score && (self.cmp)(forward_node.val.as_ref().unwrap(), &element) == std::cmp::Ordering::Less) {
@@ -187,13 +147,13 @@ impl<T> ZSkipList<T> {
 
         let level = self.level_generator.random();
 
-        if level > self.level {
-            for i in self.level..level {
+        if level > self.cur_level {
+            for i in self.cur_level..level {
                 rank[i] = 0;
                 update[i] = self.header;
                 unsafe { self.header.as_mut().level[i].span = self.len };
             }
-            self.level = level;
+            self.cur_level = level;
         }
 
         let new_node = Box::new(ZSkipNode::new(element, level));
@@ -212,7 +172,7 @@ impl<T> ZSkipList<T> {
             }
         }
 
-        for i in level..self.level {
+        for i in level..self.cur_level {
             unsafe { update[i].as_mut().level[i].span += 1 };
         }
 
@@ -256,7 +216,7 @@ impl<T> ZSkipList<T> {
 
         let mut cur = unsafe { self.header.as_mut() };
         // TODO: level
-        let max_level = self.level;
+        let max_level = self.cur_level;
         let mut update: Vec<Option<*mut ZSkipNode<T>>> = vec![None; max_level + 1];
         let res_val;
         unsafe {

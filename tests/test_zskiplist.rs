@@ -14,9 +14,9 @@ mod tests {
     fn test_insert_and_contains() {
         let mut list = ZSkipList::zsl_create();
 
-        list.zsl_insert(1);
-        list.zsl_insert(2);
-        list.zsl_insert(3);
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
 
         assert_eq!(list.contains(&1), true);
         assert_eq!(list.contains(&2), true);
@@ -27,10 +27,10 @@ mod tests {
     #[test]
     fn test_zsl_delete() {
         let mut list = ZSkipList::zsl_create();
-
-        list.zsl_insert(1);
-        list.zsl_insert(2);
-        list.zsl_insert(3);
+        
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
 
         assert_eq!(list.zsl_delete(&2), Some(2));
         assert_eq!(list.zsl_delete(&2), None);
@@ -41,7 +41,7 @@ mod tests {
     fn test_iter() {
         let mut list: ZSkipList<i32> = ZSkipList::zsl_create();
         for i in 0..100 {
-            list.zsl_insert(i)
+            list.zsl_insert(1.0, i);
         }
 
         let mut x = 0;
@@ -55,9 +55,9 @@ mod tests {
     #[test]
     fn test_iter_mut() {
         let mut list = ZSkipList::zsl_create();
-        list.zsl_insert(1);
-        list.zsl_insert(2);
-        list.zsl_insert(3);
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
         
         let mut iter_mut = list.iter_mut();
         assert_eq!(iter_mut.next(), Some(&mut 1));
@@ -78,9 +78,9 @@ mod tests {
     #[test]
     fn test_insert_duplicates() {
         let mut list = ZSkipList::zsl_create();
-        list.zsl_insert(1);
-        list.zsl_insert(2);
-        list.zsl_insert(3);
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
 
         assert_eq!(list.contains(&1), true);
         assert_eq!(list.zsl_delete(&1), Some(1));
