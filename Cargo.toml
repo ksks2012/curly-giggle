@@ -11,6 +11,10 @@ rand = { version = "0.8", features = ["small_rng"] }
 name = "bm_sds"
 harness = false
 
+[[bench]]
+name = "bm_zskiplist"
+harness = false
+
 [features]
 
 default = []
