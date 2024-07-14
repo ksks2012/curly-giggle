@@ -52,7 +52,7 @@ impl<T: fmt::Debug + std::clone::Clone> fmt::Debug for ZSkipList<T> {
                 let mut cur = self.header.as_ref();
                 while let Some(next_node) = cur.level[i].forward {
                     let next_node = next_node.as_ref();
-                    write!(f, "{:?},{:?} -> ", <ZSkipNode<T> as Clone>::clone(&next_node).into_val(), <ZSkipNode<T> as Clone>::clone(&next_node).get_span(i))?;
+                    write!(f, "{:?},({:?}),({:?}) -> ", <ZSkipNode<T> as Clone>::clone(&next_node).into_val(), <ZSkipNode<T> as Clone>::clone(&next_node).get_span(i), <ZSkipNode<T> as Clone>::clone(&next_node).score)?;
                     cur = next_node;
                 }
                 println!("\n");
@@ -158,7 +158,10 @@ impl<T> ZSkipList<T> {
             while let Some(forward) = x.level[i].forward {
                 let forward_node: &ZSkipNode<T> = unsafe {forward.as_ref()};
                 // Check score and value
-                if forward_node.score < score || (forward_node.score == score && (self.cmp)(forward_node.val.as_ref().unwrap(), &element) == std::cmp::Ordering::Less) {
+                if forward_node.score < score 
+                    || (forward_node.score == score 
+                    && (self.cmp)(forward_node.val.as_ref().unwrap(), &element) == Ordering::Less) 
+                {
                     rank[i] += x.level[i].span;
                     x = forward_node;
                 } else {
@@ -180,7 +183,7 @@ impl<T> ZSkipList<T> {
             self.cur_level = level;
         }
 
-        let new_node = Box::new(ZSkipNode::new(element, level));
+        let new_node = Box::new(ZSkipNode::new(element, level, score));
         let mut new_node_ptr = NonNull::new(Box::into_raw(new_node)).unwrap();
 
         // Update the forward pointers
@@ -292,11 +295,34 @@ impl<T> ZSkipList<T> {
         res_val
     }
 
-    pub fn zsl_get_rank(&self, score: f64, element: T) -> Option<usize> {
-        // TODO: Implementation of zsl_get_rank here
+    pub fn zsl_get_rank(&self, score: f64, element: T) -> Option<i128> {
         // Get the rank of the element with the given score in the skip list
         // Return None if the element is not found
-        None
+        let mut rank: Option<i128> = Some(0);
+        unsafe {
+            let mut cur: &ZSkipNode<T> = self.header.as_ref();
+            for i in (0..self.cur_level).rev() {
+                while let Some(forward) = cur.level[i].forward {
+                    let forward_node: &ZSkipNode<T> = forward.as_ref();
+                    if forward_node.score < score 
+                        || (forward_node.score == score 
+                        && ((self.cmp)(forward_node.val.as_ref().unwrap(), &element) == Ordering::Less))
+                    {
+                        rank = rank.map(|r| r + cur.level[i].span as i128);
+                        cur = forward_node;
+                    } else {
+                        break;
+                    }
+                }
+                if let Some(next_node) = cur.level[i].forward {
+                    let next_node = next_node.as_ref();
+                    if (self.cmp)(next_node.val.as_ref().unwrap(), &element) == Ordering::Equal {
+                        return rank;
+                    }
+                }
+            }
+        }
+        return None;
     }
 
     pub fn zsl_get_element_by_rank(&self, rank: usize) -> Option<String> {

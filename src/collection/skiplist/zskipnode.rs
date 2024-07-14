@@ -61,13 +61,13 @@ impl<T> ZSkipNode<T> {
     /// ```
     /// use curly_giggle::collection::skiplist::zskipnode::ZSkipNode;
     ///
-    /// let node: ZSkipNode<i32> = ZSkipNode::new(42, 3);
-    /// assert_eq!(node.level.len(), 32);
+    /// let node: ZSkipNode<i32> = ZSkipNode::new(42, 3, 1.0);
+    /// assert_eq!(node.level.len(), 3);
     /// ```
-    pub fn new(item: T, level: usize) -> Self {
+    pub fn new(item: T, level: usize, score: f64) -> Self {
         ZSkipNode {
             val: Some(item),
-            score: 0.0,
+            score: score,
             backward: None,
             level: vec![
                 ZSkipLevel {
