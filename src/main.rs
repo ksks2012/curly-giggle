@@ -40,6 +40,9 @@ fn exec_zskiplist() {
     println!("ZSkipList contains 2: {}", list.contains(&2));
     println!("ZSkipList contains 3: {}", list.contains(&3));
 
+    list.zsl_delete(&2);
+    println!("After delete 2:\n{:?}", list);
+
     // Loop
     let mut loop_list: ZSkipList<i32> = ZSkipList::zsl_create();
     for i in 0..20 {

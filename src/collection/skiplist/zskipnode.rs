@@ -16,7 +16,7 @@ impl<T> Clone for ZSkipLevel<T> {
 }
 #[derive(Debug)]
 pub struct ZSkipLevel<T> {
-    pub forward: Option<Link<T>>,
+    pub forward: Link<T>,
     pub span: usize,
 }
 
@@ -26,7 +26,7 @@ pub struct ZSkipNode<T> {
     pub score: f64,
     pub backward: Link<T>,
     pub level: Vec<ZSkipLevel<T>>,
-    pub next: Vec<Link<T>>,
+    // NOTE: next been replaced with level
 }
 
 impl<T> ZSkipNode<T> {
@@ -40,12 +40,30 @@ impl<T> ZSkipNode<T> {
                     forward: None,
                     span: 0,
                 };
-                ZSKIPLIST_MAXLEVEL
+                level_bound
             ],
-            next: iter::repeat(None).take(level_bound).collect(),
         }
     }
 
+    // Creates a new `ZSkipNode` with the specified item and level.
+    ///
+    /// # Arguments
+    ///
+    /// * `item` - The item to be stored in the node.
+    /// * `level` - The level of the node.
+    ///
+    /// # Returns
+    ///
+    /// A new `ZSkipNode` with the specified item and level.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use curly_giggle::collection::skiplist::zskipnode::ZSkipNode;
+    ///
+    /// let node: ZSkipNode<i32> = ZSkipNode::new(42, 3);
+    /// assert_eq!(node.level.len(), 32);
+    /// ```
     pub fn new(item: T, level: usize) -> Self {
         ZSkipNode {
             val: Some(item),
@@ -56,14 +74,33 @@ impl<T> ZSkipNode<T> {
                     forward: None,
                     span: 0,
                 };
-                ZSKIPLIST_MAXLEVEL
+                level
             ],
-            next: iter::repeat(None).take(level + 1).collect(),
         }
     }
 
     pub fn into_val(self) -> Option<T> {
         self.val
+    }
+
+    pub fn into_item(self) -> T {
+        self.val.unwrap()
+    }
+
+    pub fn is_head(&self) -> bool {
+        self.val.is_none()
+    }
+
+    pub fn is_tail(&self) -> bool {
+        self.level[0].forward.is_none()
+    }
+
+    pub fn level(&self) -> usize {
+        self.level.len()
+    }
+
+    pub fn get_span(&self, level: usize) -> usize {
+        self.level[level].span
     }
 
     pub fn cmp(&self, other: &Self) -> std::cmp::Ordering {

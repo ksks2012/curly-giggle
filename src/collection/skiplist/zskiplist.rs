@@ -65,7 +65,7 @@ impl<T: fmt::Debug + std::clone::Clone> fmt::Debug for ZSkipList<T> {
 
 impl<T> ZSkipList<T> {
     pub fn iter(&self) -> Iter<T> {
-        let node = unsafe { self.header.as_ref().next[0] };
+        let node = unsafe { self.header.as_ref().level[0].forward };
         
         Iter {
             head: node,
@@ -75,7 +75,7 @@ impl<T> ZSkipList<T> {
     }
         
     pub fn iter_mut(&mut self) -> IterMut<T> {
-        let node = unsafe { self.header.as_ref().next[0] };
+        let node = unsafe { self.header.as_ref().level[0].forward };
         
         IterMut {
             head: node,
@@ -86,7 +86,7 @@ impl<T> ZSkipList<T> {
 
     pub fn pop_front(&mut self) -> Option<T> {
         unsafe {
-            let first_node = self.header.as_ref().next[0].as_ref();
+            let first_node = self.header.as_ref().level[0].forward.as_ref();
             match first_node {
                 Some(node) => self.zsl_delete(node.as_ref().val.as_ref().unwrap()),
                 None => None,
@@ -94,10 +94,10 @@ impl<T> ZSkipList<T> {
         }
     }
 
+    // TODO: Optimization
     pub fn contains(&self, v: &T) -> bool {
         unsafe {
-            let mut cur = self.header.as_ref();
-
+            let mut cur: &ZSkipNode<T> = self.header.as_ref();
             for i in (0..self.cur_level).rev() {
                 while let Some(next_node) = cur.level[i].forward {
                     let next_node = next_node.as_ref();
@@ -246,7 +246,7 @@ impl<T> ZSkipList<T> {
         let res_val;
         unsafe {
             for i in (0..=max_level).rev() {
-                while let Some(mut next_node) = cur.next[i] {
+                while let Some(mut next_node) = cur.level[i].forward {
                     let next_node = next_node.as_mut();
                     if (self.cmp)(next_node.val.as_ref().unwrap(), &element) == Ordering::Less {
                         cur = next_node;
@@ -258,16 +258,16 @@ impl<T> ZSkipList<T> {
             }
 
             let mut ret_val_ref = None;
-            if cur.next[0].is_some()
-                && (self.cmp)(cur.next[0].unwrap().as_ref().val.as_ref().unwrap(), &element)
+            if cur.level[0].forward.is_some()
+                && (self.cmp)(cur.level[0].forward.unwrap().as_mut().val.as_ref().unwrap(), &element)
                     == Ordering::Equal
             {
-                ret_val_ref = cur.next[0];
+                ret_val_ref = cur.level[0].forward;
                 for i in (0..=max_level).rev() {
                     if update[i].is_some()
-                        && (*update[i].unwrap()).next[i].is_some()
+                        && (*update[i].unwrap()).level[i].forward.is_some()
                         && (self.cmp)(
-                            (*update[i].unwrap()).next[i]
+                            (*update[i].unwrap()).level[i].forward
                                 .unwrap()
                                 .as_mut()
                                 .val
@@ -276,8 +276,8 @@ impl<T> ZSkipList<T> {
                             &element,
                         ) == Ordering::Equal
                     {
-                        (*update[i].unwrap()).next[i] =
-                            (*update[i].unwrap()).next[i].unwrap().as_mut().next[i];
+                        (*update[i].unwrap()).level[i].forward =
+                            (*update[i].unwrap()).level[i].forward.unwrap().as_mut().level[i].forward;
                     }
                 }
             }
@@ -381,7 +381,7 @@ impl<'a, T> Iterator for Iter<'a, T> {
 
                     unsafe {
                         let node = &*node.as_ptr();
-                        self.head = node.next[0];
+                        self.head = node.level[0].forward;
                         node.val.as_ref()
                     }
                 }
@@ -431,7 +431,7 @@ impl<'a, T> Iterator for IterMut<'a, T> {
 
                     unsafe {
                         let node = &mut *node.as_ptr();
-                        self.head = node.next[0];
+                        self.head = node.level[0].forward;
                         node.val.as_mut()
                     }
                 }

@@ -1,7 +1,6 @@
 use rand::rngs::SmallRng;
 use rand::{thread_rng, Rng};
 use rand::SeedableRng;
-use crate::collection::skiplist::ZSKIPLIST_MAXLEVEL;
 
 pub trait LevelGenerator {
     fn level_bound(&self) -> usize;
