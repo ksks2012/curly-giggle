@@ -97,5 +97,18 @@ mod tests {
         assert_eq!(list.contains(&3), false);
     }
 
+    #[test]
+    fn test_zsl_get_rank() {
+        let mut list = ZSkipList::zsl_create();
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
+
+        assert_eq!(list.zsl_get_rank(1.0, 1), Some(0));
+        assert_eq!(list.zsl_get_rank(2.0, 2), Some(1));
+        assert_eq!(list.zsl_get_rank(3.0, 3), Some(2));
+        assert_eq!(list.zsl_get_rank(4.0, 4), None);
+    }
+
     // Add more tests here...
 }
