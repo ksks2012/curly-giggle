@@ -65,7 +65,7 @@ impl LevelGenerator for DefaultLevelGenerator {
 
     /// Generates a random level for a new skiplist node.
     fn random(&mut self) -> usize {
-        let mut level = 0;
+        let mut level = 1;
         let mut x = self.p;
         let f = 1.0 - self.rng.gen::<f64>();
         while x > f && level + 1 < self.level_bound {
@@ -76,12 +76,12 @@ impl LevelGenerator for DefaultLevelGenerator {
     }
 }
 
-pub fn generate_random_level() -> usize {
+pub fn generate_random_level(bound: usize) -> usize {
     let mut level = 1;
     // The random number generator used for generating levels in the skip list.
     let mut rng = thread_rng();
 
-    for _i in 1..ZSKIPLIST_MAXLEVEL {
+    for _i in 1..bound {
         if rng.gen::<u32>() % 2 == 1 {
             level += 1;
         }

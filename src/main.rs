@@ -1,6 +1,6 @@
 mod sds;
 
-fn main() {
+fn exec_sds() {
     let mut sds = sds::SDS::new();
     println!("Initial SDS: {:?}", sds);
 
@@ -20,4 +20,37 @@ fn main() {
     sds.sdsclear();
     println!("After clear: {:?}", sds);
     println!("SDS is empty: {}", sds.sdsempty());
+}
+
+fn exec_zskiplist() {
+    use curly_giggle::collection::skiplist::zskiplist::ZSkipList;
+    let mut list: ZSkipList<i32> = ZSkipList::zsl_create();
+    println!("Initial ZSkipList: {:?}", list);
+
+    list.zsl_insert(1.0, 1);
+    println!("After insert 1:\n{:?}", list);
+    println!("ZSkipList length: {}", list.get_len());
+    println!("ZSkipList contains 1: {}", list.contains(&1));
+    println!("ZSkipList contains 2: {}", list.contains(&2));
+
+    list.zsl_insert(2.0, 2);
+    println!("After insert 2:\n{:?}", list);
+    list.zsl_insert(3.0, 3);
+    println!("After insert 3:\n{:?}", list);
+    println!("ZSkipList contains 2: {}", list.contains(&2));
+    println!("ZSkipList contains 3: {}", list.contains(&3));
+
+    // Loop
+    let mut loop_list: ZSkipList<i32> = ZSkipList::zsl_create();
+    for i in 0..20 {
+        loop_list.zsl_insert(1.0, i);
+    }
+    println!("Loop insert:\n{:?}", loop_list);
+
+}
+
+fn main() {
+
+    exec_sds();
+    exec_zskiplist()
 }
