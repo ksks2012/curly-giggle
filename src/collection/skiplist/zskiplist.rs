@@ -190,13 +190,13 @@ impl<T> ZSkipList<T> {
         unsafe {
             for i in 0..level {
             
-            let update_node =  update[i].as_mut();
+                let update_node =  update[i].as_mut();
 
-            new_node_ptr.as_mut().level[i].forward = update_node.level[i].forward;
-            update_node.level[i].forward = Some(new_node_ptr);
+                new_node_ptr.as_mut().level[i].forward = update_node.level[i].forward;
+                update_node.level[i].forward = Some(new_node_ptr);
 
-            new_node_ptr.as_mut().level[i].span = update_node.level[i].span - (rank[0] - rank[i]);
-            update_node.level[i].span = (rank[0] - rank[i]) + 1;
+                new_node_ptr.as_mut().level[i].span = update_node.level[i].span - (rank[0] - rank[i]);
+                update_node.level[i].span = (rank[0] - rank[i]) + 1;
             }
         }
 
@@ -314,10 +314,13 @@ impl<T> ZSkipList<T> {
                         break;
                     }
                 }
+
                 if let Some(next_node) = cur.level[i].forward {
                     let next_node = next_node.as_ref();
-                    if (self.cmp)(next_node.val.as_ref().unwrap(), &element) == Ordering::Equal {
+                    if !cur.is_head() && (self.cmp)(next_node.val.as_ref().unwrap(), &element) == Ordering::Equal {
                         return rank;
+                    } else if i == 0 && (self.cmp)(next_node.val.as_ref().unwrap(), &element) == Ordering::Equal {
+                        return Some(0);
                     }
                 }
             }
