@@ -124,5 +124,18 @@ mod tests {
         assert_eq!(list.zsl_get_element_by_rank(4), None);
     }
 
+    #[test]
+    fn test_zsl_is_in_range() {
+        let mut list = ZSkipList::zsl_create();
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
+        
+        assert_eq!(list.zsl_is_in_range(1.0, 3.0), true);
+        assert_eq!(list.zsl_is_in_range(2.0, 4.0), true);
+        assert_eq!(list.zsl_is_in_range(0.0, 0.9), false);
+        assert_eq!(list.zsl_is_in_range(4.0, 5.0), false);
+    }
+
     // Add more tests here...
 }
