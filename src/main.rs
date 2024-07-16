@@ -50,7 +50,11 @@ fn exec_zskiplist() {
     }
     println!("Loop insert:\n{:?}", loop_list);
 
-    println!("ZSkipList get_rank {:?}", loop_list.zsl_get_rank(1.0, 1));
+    println!("ZSkipList get_rank {:?}", loop_list.zsl_get_rank(1.0, 3));
+
+    for i in 0..20 {
+        println!("ZSkipList get_element_by_rank {:?} -> {:?}", i, loop_list.zsl_get_element_by_rank(i));
+    } 
 
 }
 
