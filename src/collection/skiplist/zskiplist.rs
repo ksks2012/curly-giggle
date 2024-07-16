@@ -3,7 +3,6 @@ use std::fmt;
 use std::marker::PhantomData;
 use std::mem;
 use std::ptr::NonNull;
-use rand::Rng;
 
 use crate::collection::skiplist::{ZSKIPLIST_MAXLEVEL, ZSKIPLIST_P};
 
@@ -50,8 +49,10 @@ impl<T: fmt::Debug + std::clone::Clone> fmt::Debug for ZSkipList<T> {
             for i in 0..self.cur_level {
                 println!("Level {}:", i);
                 let mut cur = self.header.as_ref();
+                print!("None,({}),None -> ", cur.get_span(i));
                 while let Some(next_node) = cur.level[i].forward {
                     let next_node = next_node.as_ref();
+                    // val, span, score
                     write!(f, "{:?},({:?}),({:?}) -> ", <ZSkipNode<T> as Clone>::clone(&next_node).into_val(), <ZSkipNode<T> as Clone>::clone(&next_node).get_span(i), <ZSkipNode<T> as Clone>::clone(&next_node).score)?;
                     cur = next_node;
                 }
@@ -120,6 +121,32 @@ impl<T> ZSkipList<T> {
 
     pub fn get_len(&self) -> usize {
         return self.len;
+    }
+}
+
+impl<T: std::clone::Clone> ZSkipList<T> {
+    pub fn zsl_get_element_by_rank(&self, rank: usize) -> Option<T> {
+        // Get the element at the given rank in the skip list
+        // Return None if the rank is out of range
+        let mut traversed : usize = 0;
+        unsafe {
+            let mut cur: &ZSkipNode<T> = self.header.as_ref();
+            for i in (0..self.cur_level).rev() {
+                while let Some(forward) = cur.level[i].forward {
+                    if cur.level[i].span + traversed <= rank {
+                        
+                        traversed += cur.level[i].span;
+                        cur = forward.as_ref();
+                    } else {
+                        break;
+                    }
+                }
+                if traversed == rank {
+                    return cur.val.as_ref().cloned();
+                }
+            }
+        }
+        return None;
     }
 }
 
@@ -326,13 +353,6 @@ impl<T> ZSkipList<T> {
             }
         }
         return None;
-    }
-
-    pub fn zsl_get_element_by_rank(&self, rank: usize) -> Option<String> {
-        // TODO: Implementation of zsl_get_element_by_rank here
-        // Get the element at the given rank in the skip list
-        // Return None if the rank is out of range
-        None
     }
 
     pub fn zsl_is_in_range(&self, min: f64, max: f64) -> bool {
