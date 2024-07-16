@@ -356,22 +356,46 @@ impl<T> ZSkipList<T> {
     }
 
     pub fn zsl_is_in_range(&self, min: f64, max: f64) -> bool {
-        // TODO: Implementation of zsl_is_in_range here
         // Check if there are any elements in the skip list within the given score range
+        unsafe {
+            let mut cur = self.header.as_ref();
+
+            // Start from the highest level and move downwards
+            for i in (0..self.cur_level).rev() {
+                // Traverse forward nodes at the current level
+                while let Some(forward) = cur.level[i].forward {
+                    let forward_node = forward.as_ref();
+
+                    if forward_node.score > max {
+                        // If the next node's score is greater than max, break out of the loop
+                        break;
+                    }
+
+                    if forward_node.score >= min {
+                        // If the next node's score is within the range, return true
+                        return true;
+                    }
+
+                    // Move to the next node
+                    cur = forward_node;
+                }
+            }
+        }
+
         false
     }
 
-    pub fn zsl_first_in_range(&self, min: f64, max: f64) -> Option<String> {
+    pub fn zsl_first_in_range(&self, min: f64, max: f64) -> Option<T> {
         // TODO: Implementation of zsl_first_in_range here
         // Get the first element in the skip list within the given score range
         // Return None if there are no elements in the range
         None
     }
 
-    pub fn zsl_last_in_range(&self, min: f64, max: f64) -> Option<String> {
-        // TODO: Implementation of zsl_last_in_range here
+    pub fn zsl_last_in_range(&self, min: f64, max: f64) -> Option<T> {
         // Get the last element in the skip list within the given score range
         // Return None if there are no elements in the range
+
         None
     }
 
