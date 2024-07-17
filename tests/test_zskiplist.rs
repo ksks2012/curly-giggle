@@ -8,6 +8,7 @@ mod tests {
     fn test_zsl_create() {
         let list: ZSkipList<i32> = ZSkipList::zsl_create();
         assert_eq!(list.get_len(), 0);
+        drop(list)
     }
 
     #[test]
@@ -22,6 +23,7 @@ mod tests {
         assert_eq!(list.contains(&2), true);
         assert_eq!(list.contains(&3), true);
         assert_eq!(list.contains(&4), false);
+        drop(list)
     }
 
     #[test]
@@ -35,6 +37,7 @@ mod tests {
         assert_eq!(list.zsl_delete(&2), Some(2));
         assert_eq!(list.zsl_delete(&2), None);
         assert_eq!(list.contains(&2), false);
+        drop(list)
     }
 
     #[test]
@@ -49,7 +52,7 @@ mod tests {
             assert_eq!(i, &x);
             x += 1;
         });
-
+        drop(list)
     }
 
     #[test]
@@ -64,6 +67,7 @@ mod tests {
         assert_eq!(iter_mut.next(), Some(&mut 2));
         assert_eq!(iter_mut.next(), Some(&mut 3));
         assert_eq!(iter_mut.next(), None);
+        drop(list)
     }
 
     #[test]
@@ -73,6 +77,7 @@ mod tests {
         assert_eq!(list.zsl_delete(&1), None);
         let mut iter = list.iter();
         assert_eq!(iter.next(), None);
+        drop(list)
     }
 
     #[test]
@@ -95,6 +100,7 @@ mod tests {
 
         assert_eq!(list.zsl_delete(&3), Some(3));
         assert_eq!(list.contains(&3), false);
+        drop(list)
     }
 
     #[test]
@@ -108,6 +114,7 @@ mod tests {
         assert_eq!(list.zsl_get_rank(2.0, 2), Some(1));
         assert_eq!(list.zsl_get_rank(3.0, 3), Some(2));
         assert_eq!(list.zsl_get_rank(4.0, 4), None);
+        drop(list)
     }
 
     #[test]
@@ -122,6 +129,7 @@ mod tests {
         assert_eq!(list.zsl_get_element_by_rank(2), Some(2));
         assert_eq!(list.zsl_get_element_by_rank(3), Some(3));
         assert_eq!(list.zsl_get_element_by_rank(4), None);
+        drop(list)
     }
 
     #[test]
@@ -135,6 +143,20 @@ mod tests {
         assert_eq!(list.zsl_is_in_range(2.0, 4.0), true);
         assert_eq!(list.zsl_is_in_range(0.0, 0.9), false);
         assert_eq!(list.zsl_is_in_range(4.0, 5.0), false);
+        drop(list)
+    }
+
+    #[test]
+    fn test_zsl_first_in_range() {
+        let mut list = ZSkipList::zsl_create();
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
+        
+        assert_eq!(list.zsl_first_in_range(1.0, 3.0), Some(1));
+        assert_eq!(list.zsl_first_in_range(2.0, 4.0), Some(2));
+        assert_eq!(list.zsl_first_in_range(0.0, 0.9), None);
+        assert_eq!(list.zsl_first_in_range(4.0, 5.0), None);
     }
 
     // Add more tests here...
