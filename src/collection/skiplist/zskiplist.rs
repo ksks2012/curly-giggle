@@ -177,6 +177,34 @@ impl<T: std::clone::Clone> ZSkipList<T> {
         }
         None
     }
+
+    pub fn zsl_last_in_range(&self, min: f64, max: f64) -> Option<T> {
+        // Get the last element in the skip list within the given score range
+        // Return None if there are no elements in the range
+        unsafe {
+            let mut cur = self.header.as_ref();
+    
+            // Start from the highest level and move downwards
+            for i in (0..1).rev() {
+                // Traverse forward nodes at the current level
+                while let Some(forward) = cur.level[i].forward {
+                    let forward_node = forward.as_ref();
+                    
+                    if forward_node.score > max {
+                        // If the next node's score is greater than max, break out of the loop
+                        break;
+                    }
+                    cur = forward_node;
+                }
+            }
+    
+            // Check if the current node is within the range
+            if cur.score >= min && cur.score <= max {
+                return cur.val.as_ref().cloned();
+            }
+        }
+        None
+    }
 }
 
 #[allow(dead_code, unused_variables)]
@@ -412,13 +440,6 @@ impl<T> ZSkipList<T> {
         }
 
         false
-    }
-
-    pub fn zsl_last_in_range(&self, min: f64, max: f64) -> Option<T> {
-        // Get the last element in the skip list within the given score range
-        // Return None if there are no elements in the range
-
-        None
     }
 
     pub fn zsl_delete_range_by_score(&mut self, min: f64, max: f64) -> usize {
