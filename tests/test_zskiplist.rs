@@ -159,5 +159,18 @@ mod tests {
         assert_eq!(list.zsl_first_in_range(4.0, 5.0), None);
     }
 
+    #[test]
+    fn test_zsl_last_in_range() {
+        let mut list = ZSkipList::zsl_create();
+        list.zsl_insert(1.0, 1);
+        list.zsl_insert(2.0, 2);
+        list.zsl_insert(3.0, 3);
+        
+        assert_eq!(list.zsl_last_in_range(1.0, 3.0), Some(3));
+        assert_eq!(list.zsl_last_in_range(2.0, 4.0), Some(3));
+        assert_eq!(list.zsl_last_in_range(0.0, 0.9), None);
+        assert_eq!(list.zsl_last_in_range(4.0, 5.0), None);
+    }
+
     // Add more tests here...
 }
