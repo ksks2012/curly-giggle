@@ -58,6 +58,15 @@ fn exec_zskiplist() {
 
     print!("ZSkipList is in range: {:?}\n", loop_list.zsl_is_in_range(1.0, 15.0));
 
+    print!("Zskiplist before delete range by score:\n{:?}", loop_list);
+    print!("Delete range by score: {:?}\n", loop_list.zsl_delete_range_by_score(1.0, 3.0));
+    print!("Zskiplist after delete range by score:\n{:?}", loop_list);
+    print!("Delete range by score: {:?}\n", loop_list.zsl_delete_range_by_score(2.0, 10.0));
+    print!("Zskiplist after delete range by score:\n{:?}", loop_list);
+    print!("Delete range by score: {:?}\n", loop_list.zsl_delete_range_by_score(21.0, 23.0));
+    print!("Zskiplist after delete range by score:\n{:?}", loop_list);
+
+
 }
 
 fn main() {
