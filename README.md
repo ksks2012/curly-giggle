@@ -46,7 +46,7 @@ cargo bench --bench bm_sds
 - [x] zsl_is_in_range
 - [x] zsl_first_in_range
 - [x] zsl_last_in_range
-- [ ] zsl_delete_range_by_score
+- [x] zsl_delete_range_by_score
 - [ ] zsl_delete_range_by_rank
 
 
