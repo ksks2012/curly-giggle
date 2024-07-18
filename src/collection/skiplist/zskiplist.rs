@@ -363,8 +363,7 @@ impl<T> ZSkipList<T> {
                             &element,
                         ) == Ordering::Equal
                     {
-                        (*update[i].unwrap()).level[i].forward =
-                            (*update[i].unwrap()).level[i].forward.unwrap().as_mut().level[i].forward;
+                        (*update[i].unwrap()).level[i].forward =                            (*update[i].unwrap()).level[i].forward.unwrap().as_mut().level[i].forward;
                     }
                 }
             }
@@ -443,11 +442,57 @@ impl<T> ZSkipList<T> {
     }
 
     pub fn zsl_delete_range_by_score(&mut self, min: f64, max: f64) -> usize {
-        // TODO: Implementation of zsl_delete_range_by_score here
         // Delete all elements in the skip list within the given score range
         // Return the number of elements deleted
-        0
+        let mut removed_count = 0;
+        unsafe {
+            let mut update = vec![self.header; self.cur_level];
+
+            for i in (0..self.cur_level).rev() {
+                let mut cur = self.header.as_ref();
+                while let Some(forward) = cur.level[i].forward {
+                    let forward_node = forward.as_ref();
+                    if forward_node.score >= min {
+                        update[i] = NonNull::from(cur);
+                        break;
+                    }
+                    if forward_node.score > max {
+                        break;
+                    }
+                    cur = forward_node;
+                }
+            }
+
+            for i in 0..self.cur_level {
+                let mut cur = update[i].as_mut();
+                let base_update_node = update[i].as_mut();
+                while let Some(mut forward) = cur.level[i].forward {
+                    let forward_node = forward.as_mut();
+
+                    if forward_node.score > max || forward_node.score < min {
+                        break;
+                    }
+                    // Update
+                    base_update_node.level[i].forward = forward_node.level[i].forward;
+                    forward_node.backward = Some(base_update_node.into());
+                    base_update_node.level[i].span += forward_node.level[i].span;
+
+                    if i == 0 {
+                        removed_count += 1;
+                        if forward_node.level[i].span == 0 {
+                            self.tail = update[i];
+                        }
+                    }
+                    cur = forward_node;
+                }
+                base_update_node.level[i].span -= removed_count;
+            }
+        }
+    
+        self.len -= removed_count;
+        removed_count
     }
+    
 
     pub fn zsl_delete_range_by_rank(&mut self, start: usize, end: usize) -> usize {
         // TODO: Implementation of zsl_delete_range_by_rank here
