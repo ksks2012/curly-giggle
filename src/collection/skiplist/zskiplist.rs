@@ -473,10 +473,72 @@ impl<T> ZSkipList<T> {
                         break;
                     }
                     // Update
+                    // TODO: Optimization
                     base_update_node.level[i].forward = forward_node.level[i].forward;
                     forward_node.backward = Some(base_update_node.into());
                     base_update_node.level[i].span += forward_node.level[i].span;
 
+                    if i == 0 {
+                        removed_count += 1;
+                        if forward_node.level[i].span == 0 {
+                            self.tail = update[i];
+                        }
+                    }
+                    cur = forward_node;
+                    // TODO: free forward_node?
+                }
+                base_update_node.level[i].span -= removed_count;
+            }
+        }
+    
+        self.len -= removed_count;
+        removed_count
+    }
+    
+
+    pub fn zsl_delete_range_by_rank(&mut self, start: usize, end: usize) -> usize {
+        // Delete all elements in the skip list within the given rank range
+        // Return the number of elements deleted
+        let mut removed_count = 0;
+        unsafe {
+            let mut update = vec![self.header; self.cur_level];
+            let mut rank = vec![0; self.cur_level];
+    
+            // Find update points and starting node
+            for i in (0..self.cur_level).rev() {
+                let mut traversed: usize = 0;
+                // TODO: Optimization
+                let mut cur = self.header.as_ref();
+                while let Some(forward) = cur.level[i].forward {
+                    let forward_node = forward.as_ref();
+                    let predict_span = traversed + forward_node.level[i].span;
+                    if predict_span >= start {
+                        update[i] = NonNull::from(cur);
+                        break;
+                    }
+                    if predict_span > end {
+                        break;
+                    }
+                    update[i] = NonNull::from(cur);
+                    traversed += forward_node.level[i].span;
+                    cur = forward_node;
+                }
+                
+                rank[i] = traversed;
+            }
+
+            for i in 0..1 {
+                let mut cur = update[i].as_mut();
+                let base_update_node = update[i].as_mut();
+                while let Some(mut forward) = cur.level[i].forward {
+                    let forward_node = forward.as_mut();
+                    let predict_span = rank[i] + base_update_node.level[i].span;
+                    if predict_span > end || predict_span < start {
+                        break;
+                    }
+                    base_update_node.level[i].forward = forward_node.level[i].forward;
+                    forward_node.backward = Some(base_update_node.into());
+                    base_update_node.level[i].span += forward_node.level[i].span;
                     if i == 0 {
                         removed_count += 1;
                         if forward_node.level[i].span == 0 {
@@ -491,14 +553,6 @@ impl<T> ZSkipList<T> {
     
         self.len -= removed_count;
         removed_count
-    }
-    
-
-    pub fn zsl_delete_range_by_rank(&mut self, start: usize, end: usize) -> usize {
-        // TODO: Implementation of zsl_delete_range_by_rank here
-        // Delete all elements in the skip list within the given rank range
-        // Return the number of elements deleted
-        0
     }
 }
 
