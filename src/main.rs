@@ -66,6 +66,17 @@ fn exec_zskiplist() {
     print!("Delete range by score: {:?}\n", loop_list.zsl_delete_range_by_score(21.0, 23.0));
     print!("Zskiplist after delete range by score:\n{:?}", loop_list);
 
+    let mut loop_list: ZSkipList<i32> = ZSkipList::zsl_create();
+    for i in 0..20 {
+        loop_list.zsl_insert(i as f64, i);
+    }
+    print!("Zskiplist before delete range by rank:\n{:?}", loop_list);
+    print!("Delete range by rank: {:?}\n", loop_list.zsl_delete_range_by_rank(1, 3));
+    print!("Zskiplist after delete range by rank:\n{:?}", loop_list);
+    print!("Delete range by rank: {:?}\n", loop_list.zsl_delete_range_by_rank(2, 10));
+    print!("Zskiplist after delete range by rank:\n{:?}", loop_list);
+    print!("Delete range by rank: {:?}\n", loop_list.zsl_delete_range_by_rank(21, 23));
+    print!("Zskiplist after delete range by rank:\n{:?}", loop_list);
 
 }
 

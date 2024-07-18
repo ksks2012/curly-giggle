@@ -184,5 +184,17 @@ mod tests {
         assert_eq!(list.zsl_delete_range_by_score(21.0, 23.0), 0);
     }
 
+    #[test]
+    fn test_zsl_delete_range_by_rank() {
+        let mut list = ZSkipList::zsl_create();
+        for i in 0..20 {
+            list.zsl_insert(i as f64, i);
+        }
+        
+        assert_eq!(list.zsl_delete_range_by_rank(1, 3), 3);
+        assert_eq!(list.zsl_delete_range_by_rank(2, 10), 9);
+        assert_eq!(list.zsl_delete_range_by_rank(21, 23), 0);
+    }
+
     // Add more tests here...
 }
